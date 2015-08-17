@@ -1,7 +1,9 @@
 /* SwaRM: parallelized secure delete application */
 
 #include <sys/select.h>
+#include <sys/stat.h>
 
+#include <dirent.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,11 +19,20 @@ static void childloop(struct config *config, int requestpipe, int responsepipe)
 {
   int wrote;
   char filename[BLOCKSIZE];
+  struct stat filestat;
 
   while (read(requestpipe, filename, sizeof filename) != -1) {
-    if (config->verbose) { printf("wiping: %s...", filename); }
-    wipe_file(filename);
-    if (config->verbose) { printf("complete.\n"); }
+    exit_if(stat(filename, &filestat) == -1, STAT_ERROR);
+
+    if (S_ISDIR(filestat.st_mode) && config->recursive) {
+      wipe_directory_tree(config->verbose, filename);
+    }
+    else {
+      if (config->verbose) { printf("wiping: %s...", filename); }
+      wipe_file(filename);
+      if (config->verbose) { printf("complete.\n"); }
+    }
+
     wrote = write(responsepipe, ".", 2);
     exit_if(wrote == -1, WRITE_ERROR);
   }
@@ -67,14 +78,24 @@ static void parentloop(struct config *config, struct pipeset *pipes)
 
 static void serial_wipe_files(struct config *config)
 {
+  DIR *dir;
   int i;
   char *filename;
+  struct dirent *dirent;
+  struct stat filestat;
 
   for (i = 0; i < config->nfiles; i++) {
     filename = get_filename(config, i);
-    if (config->verbose) { printf("wiping: %s...", filename); }
-    wipe_file(filename);
-    if (config->verbose) { printf("complete.\n"); }
+    exit_if(stat(filename, &filestat) == -1, STAT_ERROR);
+
+    if (S_ISDIR(filestat.st_mode) && config->recursive) {
+      wipe_directory_tree(config->verbose, filename);
+    }
+    else {
+      if (config->verbose) { printf("wiping: %s...", filename); }
+      wipe_file(filename);
+      if (config->verbose) { printf("complete.\n"); }
+    }
   }
 }
 

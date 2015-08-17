@@ -1,4 +1,8 @@
+#include <sys/stat.h>
+
+#include <dirent.h>
 #include <fcntl.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +10,17 @@
 
 #include "errors.h"
 #include "wipe.h"
+
+static int ignore_entry(struct stat *stat, struct dirent *dirent)
+{
+  int isdot, isdotdot, length;
+
+  length = strlen(dirent->d_name);
+  isdot = strncmp(dirent->d_name, ".", length) == 0;
+  isdotdot = strncmp(dirent->d_name, "..", length) == 0;
+
+  return S_ISDIR(stat->st_mode) && (isdot || isdotdot);
+}
 
 static void overwrite_bytes(int file_descriptor, int size, void (*generate)(void *, size_t))
 {
@@ -32,6 +47,43 @@ void overwrite_file(int file_descriptor, int size, void (*generate)(void *, size
   }
 
   overwrite_bytes(file_descriptor, bytes, generate);
+}
+
+void wipe_directory_tree(bool verbose, const char *name)
+{
+  DIR *dir;
+  struct dirent *dirent;
+  struct stat filestat;
+  char fullpath[FILENAME_MAX];
+  char filename[FILENAME_MAX];
+
+  realpath(name, fullpath);
+  exit_if(fullpath == NULL, REALPATH_ERROR);
+
+  dir = opendir(fullpath);
+  exit_if(dir == NULL, OPENDIR_ERROR);
+
+  while ((dirent = readdir(dir)) != NULL) {
+
+    snprintf(filename, sizeof filename, "%s/%s", fullpath, dirent->d_name);
+    stat(filename, &filestat);
+    if (ignore_entry(&filestat, dirent)) { continue; }
+
+    if (S_ISDIR(filestat.st_mode)) {
+      wipe_directory_tree(verbose, filename);
+
+      if (verbose) { printf("removing: %s...", filename); }
+      rmdir(filename);
+      if (verbose) { printf("complete.\n"); }
+    }
+    else {
+      if (verbose) { printf("wiping: %s...", filename); }
+      wipe_file(filename);
+      if (verbose) { printf("complete.\n"); }
+    }
+  }
+
+  closedir(dir);
 }
 
 void wipe_file(const char *filename)
