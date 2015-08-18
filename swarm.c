@@ -29,7 +29,7 @@ static void childloop(struct config *config, int requestpipe, int responsepipe)
     }
     else {
       if (config->verbose) { printf("wiping: %s...", filename); }
-      wipe_file(filename);
+      if (!config->debug) { wipe_file(filename); }
       if (config->verbose) { printf("complete.\n"); }
     }
 
@@ -93,7 +93,7 @@ static void serial_wipe_files(struct config *config)
     }
     else {
       if (config->verbose) { printf("wiping: %s...", filename); }
-      wipe_file(filename);
+      if (!config->debug) { wipe_file(filename); }
       if (config->verbose) { printf("complete.\n"); }
     }
   }

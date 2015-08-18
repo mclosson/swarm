@@ -8,6 +8,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "errors.h"
 #include "wipe.h"
 
@@ -49,7 +50,7 @@ void overwrite_file(int file_descriptor, int size, void (*generate)(void *, size
   overwrite_bytes(file_descriptor, bytes, generate);
 }
 
-void wipe_directory_tree(bool verbose, const char *name)
+void wipe_directory_tree(struct config *config, const char *name)
 {
   DIR *dir;
   struct dirent *dirent;
@@ -70,16 +71,16 @@ void wipe_directory_tree(bool verbose, const char *name)
     if (ignore_entry(&filestat, dirent)) { continue; }
 
     if (S_ISDIR(filestat.st_mode)) {
-      wipe_directory_tree(verbose, filename);
+      wipe_directory_tree(config, filename);
 
-      if (verbose) { printf("removing: %s...", filename); }
-      rmdir(filename);
-      if (verbose) { printf("complete.\n"); }
+      if (config->verbose) { printf("removing: %s...", filename); }
+      if (!config->debug) { rmdir(filename); }
+      if (config->verbose) { printf("complete.\n"); }
     }
     else {
-      if (verbose) { printf("wiping: %s...", filename); }
-      wipe_file(filename);
-      if (verbose) { printf("complete.\n"); }
+      if (config->verbose) { printf("wiping: %s...", filename); }
+      if (!config->debug) { wipe_file(filename); }
+      if (config->verbose) { printf("complete.\n"); }
     }
   }
 
