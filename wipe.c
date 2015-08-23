@@ -72,14 +72,14 @@ void wipe_directory_tree(struct config *config, const char *name)
     if (S_ISDIR(filestat.st_mode)) {
       wipe_directory_tree(config, filename);
 
-      if (config->verbose) { printf("removing: %s...", filename); }
+      if (config->verbose) { printf("removing: %s", filename); }
       if (!config->debug) { rmdir(filename); }
-      if (config->verbose) { printf("complete.\n"); }
+      if (config->verbose) { printf("\n"); }
     }
     else {
-      if (config->verbose) { printf("wiping: %s...", filename); }
+      if (config->verbose) { printf("wiping: %s", filename); }
       if (!config->debug) { wipe_file(filename); }
-      if (config->verbose) { printf("complete.\n"); }
+      if (config->verbose) { printf("\n"); }
     }
   }
 

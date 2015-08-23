@@ -94,9 +94,9 @@ static void serial_wipe_files(struct config *config)
       if (config->verbose) { printf("\n"); }
     }
     else {
-      if (config->verbose) { printf("wiping: %s...", filename); }
+      if (config->verbose) { printf("wiping: %s", filename); }
       if (!config->debug) { wipe_file(filename); }
-      if (config->verbose) { printf("complete.\n"); }
+      if (config->verbose) { printf("\n"); }
     }
   }
 }
