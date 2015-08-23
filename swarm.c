@@ -22,7 +22,7 @@ static void childloop(struct config *config, int requestpipe, int responsepipe)
   struct stat filestat;
 
   while (read(requestpipe, filename, sizeof filename) != -1) {
-    exit_if(stat(filename, &filestat) == -1, STAT_ERROR);
+    exit_if(stat(filename, &filestat) == -1, STAT_ERROR, filename);
 
     if (S_ISDIR(filestat.st_mode) && config->recursive) {
       wipe_directory_tree(config, filename);
@@ -84,7 +84,7 @@ static void serial_wipe_files(struct config *config)
 
   for (i = 0; i < config->nfiles; i++) {
     filename = get_filename(config, i);
-    exit_if(stat(filename, &filestat) == -1, STAT_ERROR);
+    exit_if(stat(filename, &filestat) == -1, STAT_ERROR, filename);
 
     if (S_ISDIR(filestat.st_mode) && config->recursive) {
       wipe_directory_tree(config, filename);

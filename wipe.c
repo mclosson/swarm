@@ -58,10 +58,10 @@ void wipe_directory_tree(struct config *config, const char *name)
   char fullpath[FILENAME_MAX];
   char filename[FILENAME_MAX];
 
-  exit_if(realpath(name, fullpath) == NULL, REALPATH_ERROR);
+  exit_if(realpath(name, fullpath) == NULL, REALPATH_ERROR, fullpath);
 
   dir = opendir(fullpath);
-  exit_if(dir == NULL, OPENDIR_ERROR);
+  exit_if(dir == NULL, OPENDIR_ERROR, fullpath);
 
   while ((dirent = readdir(dir)) != NULL) {
 
@@ -103,5 +103,5 @@ void wipe_file(const char *filename)
   overwrite_file(file_descriptor, file_size, bzero);
 
   exit_if(close(file_descriptor) == -1, CLOSE_ERROR);
-  exit_if(unlink(filename) == -1, UNLINK_ERROR);
+  exit_if(unlink(filename) == -1, UNLINK_ERROR, filename);
 }
