@@ -120,8 +120,10 @@ int main(int argc, char *argv[])
     switch (opt) {
       case 'd':
         config.debug = true;
+        break;
       case 'r':
         config.recursive = true;
+        break;
       case 'w':
         config.workers = atoi(optarg);
         break;
