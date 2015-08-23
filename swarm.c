@@ -88,6 +88,10 @@ static void serial_wipe_files(struct config *config)
 
     if (S_ISDIR(filestat.st_mode) && config->recursive) {
       wipe_directory_tree(config, filename);
+
+      if (config->verbose) { printf("removing: %s", filename); }
+      if (!config->debug) { rmdir(filename); }
+      if (config->verbose) { printf("\n"); }
     }
     else {
       if (config->verbose) { printf("wiping: %s...", filename); }
