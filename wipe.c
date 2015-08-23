@@ -58,8 +58,7 @@ void wipe_directory_tree(struct config *config, const char *name)
   char fullpath[FILENAME_MAX];
   char filename[FILENAME_MAX];
 
-  realpath(name, fullpath);
-  exit_if(fullpath == NULL, REALPATH_ERROR);
+  exit_if(realpath(name, fullpath) == NULL, REALPATH_ERROR);
 
   dir = opendir(fullpath);
   exit_if(dir == NULL, OPENDIR_ERROR);

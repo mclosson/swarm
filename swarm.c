@@ -25,7 +25,7 @@ static void childloop(struct config *config, int requestpipe, int responsepipe)
     exit_if(stat(filename, &filestat) == -1, STAT_ERROR);
 
     if (S_ISDIR(filestat.st_mode) && config->recursive) {
-      wipe_directory_tree(config->verbose, filename);
+      wipe_directory_tree(config, filename);
     }
     else {
       if (config->verbose) { printf("wiping: %s...", filename); }
@@ -42,7 +42,7 @@ static void parentloop(struct config *config, struct pipeset *pipes)
 {
   char *filename;
   char buffer[BLOCKSIZE];
-  int bytes_read, i, ready, readpipe, writepipe, wrote, queued;
+  int i, ready, readpipe, writepipe, wrote, queued;
   struct fd_set readset;
 
   queued = config->nfiles;
@@ -78,10 +78,8 @@ static void parentloop(struct config *config, struct pipeset *pipes)
 
 static void serial_wipe_files(struct config *config)
 {
-  DIR *dir;
   int i;
   char *filename;
-  struct dirent *dirent;
   struct stat filestat;
 
   for (i = 0; i < config->nfiles; i++) {
@@ -89,7 +87,7 @@ static void serial_wipe_files(struct config *config)
     exit_if(stat(filename, &filestat) == -1, STAT_ERROR);
 
     if (S_ISDIR(filestat.st_mode) && config->recursive) {
-      wipe_directory_tree(config->verbose, filename);
+      wipe_directory_tree(config, filename);
     }
     else {
       if (config->verbose) { printf("wiping: %s...", filename); }
