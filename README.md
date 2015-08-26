@@ -14,6 +14,14 @@ SwaRM is an application to securely wipe and unlink files and directories where 
 * Add man page
 * Consider breadth versus depth first directory traversal and its implications
 
+## Setup
+
+```sh
+$ make swarm
+$ cp swarm ~/bin (optional)
+$ swarm <arguments>
+```
+
 ## Usage
 
 Delete 3 files
