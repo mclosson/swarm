@@ -1,6 +1,19 @@
 # swarm
 SwaRM: parallelized secure delete application
 
+SwaRM is an application to securely wipe and unlink files and directories where the files to be overwritten are processed by a user specified number of child processes which request the next resource to wipe and remove from the parent process.  SwaRM may also be used to securely remove files in a serial single process mode.
+
+## TODO
+
+* Add explicit configuration for policy on deleting symlinks and hardlinks
+* Add support for renaming or overwriting directories before removing
+* Add macros for using arc4random_buf shim when compiling for Linux
+* Add configuration for number of random write passes, number of zero write passes
+* Add automated regressions testing
+* Add separate tasks in Makefile for debug versus non-debug builds
+* Add man page
+* Consider breadth versus depth first directory traversal and its implications
+
 ## Usage
 
 Delete 3 files
